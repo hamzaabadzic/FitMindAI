@@ -1,81 +1,77 @@
-// ------------------------
-//  FitMind AI ENGINE V3
-// ------------------------
+let chats = [];
+let currentChat = [];
 
-const API_KEY = "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"; // ← UBACI SVOJ KLJUČ OVDE
-
-const SYSTEM_PROMPT = `
-Ti si FitMind AI – napredni trener za ishranu, trening, zdravlje, oporavak i mindset.
-Odgovaraj stručno, motivirajuće i jasno.
-Uvijek koristi ove sekcije:
-
-1) 🥗 Ishrana
-2) 🏋️‍♂️ Trening
-3) 😴 Oporavak
-4) 🔥 Mindset
-5) ❓ Kviz (ako ga korisnik želi)
-
-Budi prijateljski ton, ali stručan. Personalizuj savjete.
-`;
-
-// ------------------------------
-//  SLANJE PORUKE PREKO OPENAI API
-// ------------------------------
-
-async function askFitMind(prompt) {
-
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${API_KEY}`
-        },
-        body: JSON.stringify({
-            model: "gpt-3.5-turbo",
-            messages: [
-                { role: "system", content: SYSTEM_PROMPT },
-                { role: "user", content: prompt }
-            ],
-            temperature: 0.8
-        })
-    });
-
-    const data = await response.json();
-
-    return data.choices[0].message.content;
+function saveChat() {
+    localStorage.setItem("fitmind_chats", JSON.stringify(chats));
 }
 
-// ------------------------------
-//  UI HANDLING
-// ------------------------------
+function loadHistory() {
+    const saved = localStorage.getItem("fitmind_chats");
+    if (saved) chats = JSON.parse(saved);
 
-const chatBox = document.getElementById("chat-box");
-const userInput = document.getElementById("user-input");
-const sendBtn = document.getElementById("send-btn");
+    const history = document.getElementById("history");
+    history.innerHTML = "";
 
-function addMessage(text, sender) {
+    chats.forEach((chat, index) => {
+        let title = chat[0]?.text?.slice(0, 25) || "Nova konverzacija";
+        let div = document.createElement("div");
+        div.classList.add("history-item");
+        div.textContent = title;
+
+        div.onclick = () => loadChat(index);
+        history.appendChild(div);
+    });
+}
+
+function loadChat(index) {
+    currentChat = chats[index];
+    const chatBox = document.getElementById("chat-box");
+    chatBox.innerHTML = "";
+
+    currentChat.forEach(msg => addMessage(msg.text, msg.sender, false));
+}
+
+function addMessage(text, sender, save = true) {
+    const chatBox = document.getElementById("chat-box");
+
     const msg = document.createElement("div");
     msg.classList.add("message", sender);
     msg.innerText = text;
+
     chatBox.appendChild(msg);
     chatBox.scrollTop = chatBox.scrollHeight;
+
+    if (save) {
+        currentChat.push({ sender, text });
+        saveChat();
+    }
 }
 
-sendBtn.addEventListener("click", sendMessage);
-userInput.addEventListener("keypress", (e) => {
+document.getElementById("new-chat-btn").onclick = () => {
+    if (currentChat.length > 0) chats.push(currentChat);
+    currentChat = [];
+    document.getElementById("chat-box").innerHTML = "";
+    saveChat();
+    loadHistory();
+};
+
+document.getElementById("send-btn").onclick = sendMessage;
+document.getElementById("user-input").addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
 });
 
-async function sendMessage() {
-    const message = userInput.value.trim();
-    if (!message) return;
+function sendMessage() {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (!text) return;
 
-    addMessage(message, "user");
-    userInput.value = "";
+    input.value = "";
 
-    addMessage("FitMind razmišlja… ⏳", "bot");
+    addMessage(text, "user");
 
-    const reply = await askFitMind(message);
-
-    chatBox.lastChild.innerText = reply;
+    setTimeout(() => {
+        addMessage("FitMind AI će odgovoriti kad povežemo backend…", "bot");
+    }, 300);
 }
+
+loadHistory();
