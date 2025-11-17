@@ -3,24 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FitMind AI – Tvoj lični AI trener</title>
+    <title>FitMind AI</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="header">
-        <img src="logo.png" class="logo" alt="FitMind AI Logo">
-        <h1>FitMind AI</h1>
-        <p class="subtitle">Tvoj lični AI trener za ishranu, trening i zdravlje</p>
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+        <div class="sidebar-title">
+            <img src="logo.png" class="sidebar-logo">
+            <h2>FitMind AI</h2>
+        </div>
+
+        <button id="new-chat-btn" class="new-chat">+ Nova konverzacija</button>
+
+        <div id="history" class="chat-history"></div>
     </div>
 
-    <div class="chat-container">
-        <div id="chat-box"></div>
+    <!-- MAIN CHAT AREA -->
+    <div class="chat-wrapper">
+
+        <div class="chat-header">
+            <img src="logo.png" class="header-logo">
+            <h1>FitMind AI</h1>
+        </div>
+
+        <div id="chat-box" class="chat-box"></div>
 
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Napiši nešto..." autocomplete="off">
+            <input type="text" id="user-input" placeholder="Napiši poruku…" autocomplete="off">
             <button id="send-btn">➤</button>
         </div>
+
     </div>
 
     <script src="script.js"></script>
